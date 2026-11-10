@@ -1,60 +1,642 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Classifieds Website</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #e3f2fd;
-            text-align: center;
-        }
-        h1 {
-            color: darkblue;
-        }
-        .product {
-            background: white;
-            padding: 15px;
-            margin: 15px auto;
-            width: 250px;
-            border-radius: 10px;
-        }
-        button {
-            background: blue;
-            color: white;
-            padding: 8px;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuickMarket Buy and Sell</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f2;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Header */
+  .header {
+    background-color: #154d29;
+    color: white;
+    padding: 15px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header h1 {
+    margin: 0;
+  }
+  .tabs button {
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    padding: 8px 22px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-left: 8px;
+  }
+  .tabs button.active {
+    background-color: #e2412f;
+    border-color: #e2412f;
+  }
+
+  .container {
+    width: 95%;
+    max-width: 1100px;
+    margin: 20px auto;
+  }
+
+  /* Menu: always 2 items in each row */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+
+  /* Product card: emoji on the left, details on the right */
+  .item {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  .item .emoji {
+    font-size: 48px;
+    width: 70px;
+    text-align: center;
+  }
+  .item .details {
+    flex: 1;
+  }
+  .item h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+  }
+  .item p {
+    color: #666;
+    font-size: 13px;
+    margin: 0 0 4px 0;
+  }
+  .item .seller {
+    font-size: 12px;
+    color: #154d29;
+    font-weight: bold;
+  }
+  .item .bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+  }
+  .price {
+    font-weight: bold;
+    font-size: 17px;
+  }
+  .buy-btn {
+    background-color: #1f6b3a;
+    color: white;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .buy-btn:hover {
+    background-color: #154d29;
+  }
+  .remove-btn {
+    background-color: #e2412f;
+    color: white;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .sold-tag {
+    background-color: #888;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  .item.sold {
+    opacity: 0.6;
+  }
+
+  .empty-text {
+    color: #666;
+    padding: 20px 0;
+  }
+
+  /* Sell form */
+  .sell-form {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 520px;
+    margin-bottom: 25px;
+  }
+  label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  input, textarea, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    font-size: 14px;
+  }
+  .error {
+    color: red;
+    font-size: 13px;
+  }
+  .main-btn {
+    width: 100%;
+    background-color: #e2412f;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 15px;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+
+  /* Popup (used for all popups) */
+  .popup-bg {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    overflow: auto;
+  }
+  .popup-box {
+    background-color: white;
+    width: 360px;
+    max-width: 90%;
+    margin: 80px auto;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .popup-box.left-text {
+    text-align: left;
+  }
+  .tick {
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    font-size: 38px;
+    color: white;
+    background-color: #1f6b3a;
+    border-radius: 50%;
+    margin: 0 auto 10px auto;
+  }
+  .done-btn {
+    background-color: #1f6b3a;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .cancel-btn {
+    background-color: #888;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-size: 16px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 10px;
+  }
+  .btn-row .main-btn {
+    flex: 1;
+  }
+
+  /* Small phones: keep 2 per row, emoji above the text */
+  @media (max-width: 600px) {
+    .grid {
+      gap: 8px;
+    }
+    .item {
+      flex-direction: column;
+      text-align: center;
+      padding: 10px;
+    }
+    .item .emoji {
+      font-size: 38px;
+      width: auto;
+    }
+    .item .details {
+      width: 100%;
+    }
+    .item .bottom {
+      flex-direction: column;
+      gap: 6px;
+    }
+    .item h3 {
+      font-size: 14px;
+    }
+    .item p {
+      display: none;
+    }
+  }
+</style>
 </head>
+
 <body>
 
-    <h1>Classifieds Website</h1>
-    <h2>Used Products for Sale</h2>
+  <div class="header">
+    <h1>QuickMarket</h1>
+    <div class="tabs">
+      <button id="tabBuy" class="active" onclick="showPage('buy')">Buy</button>
+      <button id="tabSell" onclick="showPage('sell')">Sell</button>
+    </div>
+  </div>
 
-    <div class="product">
-        <h3>Old Bicycle</h3>
-        <p>Price: ₹2000</p>
-        <button onclick="buy('Old Bicycle')">Buy Now</button>
+  <div class="container">
+
+    <!-- BUY PAGE -->
+    <div id="buyPage">
+      <h2>Items for Sale</h2>
+      <div class="grid" id="buyList"></div>
     </div>
 
-    <div class="product">
-        <h3>Used Laptop</h3>
-        <p>Price: ₹12000</p>
-        <button onclick="buy('Used Laptop')">Buy Now</button>
+    <!-- SELL PAGE -->
+    <div id="sellPage" style="display:none;">
+      <h2>Sell an Item</h2>
+      <div class="sell-form">
+
+        <label>Item Name</label>
+        <input type="text" id="itemName">
+        <div class="error" id="errItem"></div>
+
+        <label>Type</label>
+        <select id="itemEmoji">
+          <option value="📦">📦 Other</option>
+          <option value="📱">📱 Mobile</option>
+          <option value="💻">💻 Laptop</option>
+          <option value="🚲">🚲 Bicycle</option>
+          <option value="👕">👕 Clothes</option>
+          <option value="📚">📚 Books</option>
+          <option value="🪑">🪑 Furniture</option>
+          <option value="🎧">🎧 Headphones</option>
+          <option value="📷">📷 Camera</option>
+          <option value="🍎">🍎 Food</option>
+        </select>
+
+        <label>Price (Rs.)</label>
+        <input type="text" id="itemPrice">
+        <div class="error" id="errPrice"></div>
+
+        <label>Description</label>
+        <textarea id="itemDesc" rows="3"></textarea>
+        <div class="error" id="errDesc"></div>
+
+        <label>Your Name (Seller)</label>
+        <input type="text" id="sellerName">
+        <div class="error" id="errSeller"></div>
+
+        <label>Phone Number</label>
+        <input type="text" id="sellerPhone" maxlength="10">
+        <div class="error" id="errSellerPhone"></div>
+
+        <button class="main-btn" onclick="addItem()">List My Item</button>
+      </div>
+
+      <h2>All Listed Items</h2>
+      <div class="grid" id="sellList"></div>
     </div>
 
-    <div class="product">
-        <h3>Study Table</h3>
-        <p>Price: ₹1500</p>
-        <button onclick="buy('Study Table')">Buy Now</button>
-    </div>
+  </div>
 
-    <script>
-        function buy(product) {
-            alert(product + " selected successfully!");
-        }
-    </script>
+  <!-- BUY DETAILS POPUP -->
+  <div class="popup-bg" id="buyPopup">
+    <div class="popup-box left-text">
+      <h2 style="margin-top:0;">Buyer Details</h2>
+      <p id="buyInfo"></p>
+
+      <label>Full Name</label>
+      <input type="text" id="buyName">
+      <div class="error" id="errBuyName"></div>
+
+      <label>Phone Number</label>
+      <input type="text" id="buyPhone" maxlength="10">
+      <div class="error" id="errBuyPhone"></div>
+
+      <label>Delivery Address</label>
+      <textarea id="buyAddress" rows="3"></textarea>
+      <div class="error" id="errBuyAddress"></div>
+
+      <label>Payment Method</label>
+      <select id="buyPayment">
+        <option>Cash on delivery</option>
+        <option>UPI</option>
+        <option>Card</option>
+      </select>
+
+      <div class="btn-row">
+        <button class="main-btn" onclick="confirmBuy()">Confirm Order</button>
+        <button class="cancel-btn" onclick="closeBuyPopup()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGE POPUP (Order Placed / Item Listed) -->
+  <div class="popup-bg" id="msgPopup">
+    <div class="popup-box">
+      <div class="tick">&#10003;</div>
+      <h2 id="msgTitle"></h2>
+      <p id="msgText"></p>
+      <button class="done-btn" onclick="closeMsgPopup()">Done</button>
+    </div>
+  </div>
+
+<script>
+  // Default items (shown the first time)
+  var defaultItems = [
+    { id: 1, name: "Used Mobile Phone",  price: 6500, emoji: "📱", desc: "Good condition, with charger", seller: "Arun",   phone: "9876543210", sold: false },
+    { id: 2, name: "Study Table",        price: 1800, emoji: "🪑", desc: "Strong wooden table",          seller: "Priya",  phone: "9876501234", sold: false },
+    { id: 3, name: "Bicycle",            price: 3200, emoji: "🚲", desc: "Lightly used, 21 gears",       seller: "Karthik",phone: "9812345678", sold: false },
+    { id: 4, name: "Laptop",             price: 18500,emoji: "💻", desc: "8GB RAM, 256GB SSD",           seller: "Meena",  phone: "9898989898", sold: false }
+  ];
+
+  var items = [];
+  var currentId = 0;
+
+  // Load items from the browser memory
+  function loadItems() {
+    var saved = null;
+    try {
+      saved = localStorage.getItem("quickMarketItems");
+    } catch (e) {
+      saved = null;
+    }
+    if (saved) {
+      items = JSON.parse(saved);
+    } else {
+      items = defaultItems;
+    }
+  }
+
+  // Save items in the browser memory
+  function saveItems() {
+    try {
+      localStorage.setItem("quickMarketItems", JSON.stringify(items));
+    } catch (e) {
+      // saving not available, ignore
+    }
+  }
+
+  // Make user text safe to show on the page
+  function safeText(text) {
+    text = String(text);
+    text = text.replace(/&/g, "&amp;");
+    text = text.replace(/</g, "&lt;");
+    text = text.replace(/>/g, "&gt;");
+    return text;
+  }
+
+  // Switch between Buy and Sell pages
+  function showPage(page) {
+    if (page == "buy") {
+      document.getElementById("buyPage").style.display = "block";
+      document.getElementById("sellPage").style.display = "none";
+      document.getElementById("tabBuy").className = "active";
+      document.getElementById("tabSell").className = "";
+    } else {
+      document.getElementById("buyPage").style.display = "none";
+      document.getElementById("sellPage").style.display = "block";
+      document.getElementById("tabBuy").className = "";
+      document.getElementById("tabSell").className = "active";
+    }
+    showAll();
+  }
+
+  // Show items on the Buy page and the Sell page
+  function showAll() {
+    var buyHtml = "";
+    var sellHtml = "";
+
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var soldClass = "";
+      var buyButton = "";
+
+      if (it.sold == true) {
+        soldClass = " sold";
+        buyButton = '<span class="sold-tag">SOLD</span>';
+      } else {
+        buyButton = '<button class="buy-btn" onclick="openBuyPopup(' + it.id + ')">Buy Now</button>';
+      }
+
+      // card for buyers
+      buyHtml += '<div class="item' + soldClass + '">';
+      buyHtml += '<div class="emoji">' + it.emoji + '</div>';
+      buyHtml += '<div class="details">';
+      buyHtml += '<h3>' + safeText(it.name) + '</h3>';
+      buyHtml += '<p>' + safeText(it.desc) + '</p>';
+      buyHtml += '<div class="seller">Seller: ' + safeText(it.seller) + '</div>';
+      buyHtml += '<div class="bottom"><span class="price">Rs. ' + it.price + '</span>' + buyButton + '</div>';
+      buyHtml += '</div></div>';
+
+      // card for sellers (with remove button)
+      sellHtml += '<div class="item' + soldClass + '">';
+      sellHtml += '<div class="emoji">' + it.emoji + '</div>';
+      sellHtml += '<div class="details">';
+      sellHtml += '<h3>' + safeText(it.name) + '</h3>';
+      sellHtml += '<div class="seller">Seller: ' + safeText(it.seller) + ' (' + safeText(it.phone) + ')</div>';
+      sellHtml += '<div class="bottom"><span class="price">Rs. ' + it.price + '</span>';
+      sellHtml += '<button class="remove-btn" onclick="removeItem(' + it.id + ')">Remove</button></div>';
+      sellHtml += '</div></div>';
+    }
+
+    if (items.length == 0) {
+      buyHtml = '<div class="empty-text">No items for sale yet.</div>';
+      sellHtml = '<div class="empty-text">You have not listed any items yet.</div>';
+    }
+
+    document.getElementById("buyList").innerHTML = buyHtml;
+    document.getElementById("sellList").innerHTML = sellHtml;
+  }
+
+  // Find an item by id
+  function getItem(id) {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id == id) {
+        return items[i];
+      }
+    }
+  }
+
+  // ---------- SELLER ----------
+  function addItem() {
+    var name = document.getElementById("itemName").value;
+    var emoji = document.getElementById("itemEmoji").value;
+    var price = document.getElementById("itemPrice").value;
+    var desc = document.getElementById("itemDesc").value;
+    var seller = document.getElementById("sellerName").value;
+    var phone = document.getElementById("sellerPhone").value;
+    var valid = true;
+
+    document.getElementById("errItem").innerHTML = "";
+    document.getElementById("errPrice").innerHTML = "";
+    document.getElementById("errDesc").innerHTML = "";
+    document.getElementById("errSeller").innerHTML = "";
+    document.getElementById("errSellerPhone").innerHTML = "";
+
+    if (name.length < 2) {
+      document.getElementById("errItem").innerHTML = "Please enter the item name.";
+      valid = false;
+    }
+    if (price == "" || isNaN(price) || Number(price) <= 0) {
+      document.getElementById("errPrice").innerHTML = "Enter a valid price.";
+      valid = false;
+    }
+    if (desc.length < 5) {
+      document.getElementById("errDesc").innerHTML = "Please describe your item.";
+      valid = false;
+    }
+    if (seller.length < 2) {
+      document.getElementById("errSeller").innerHTML = "Please enter your name.";
+      valid = false;
+    }
+    if (phone.length != 10 || isNaN(phone)) {
+      document.getElementById("errSellerPhone").innerHTML = "Enter a 10 digit phone number.";
+      valid = false;
+    }
+
+    if (valid == true) {
+      var newId = new Date().getTime();
+      items.unshift({
+        id: newId,
+        name: name,
+        price: Number(price),
+        emoji: emoji,
+        desc: desc,
+        seller: seller,
+        phone: phone,
+        sold: false
+      });
+      saveItems();
+      showAll();
+
+      document.getElementById("itemName").value = "";
+      document.getElementById("itemPrice").value = "";
+      document.getElementById("itemDesc").value = "";
+
+      showMessage("Item Listed!", "Your item is now visible to buyers on the Buy page.");
+    }
+  }
+
+  function removeItem(id) {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id == id) {
+        items.splice(i, 1);
+        break;
+      }
+    }
+    saveItems();
+    showAll();
+  }
+
+  // ---------- BUYER ----------
+  function openBuyPopup(id) {
+    currentId = id;
+    var it = getItem(id);
+    document.getElementById("buyInfo").innerHTML =
+      "<b>" + safeText(it.name) + "</b> - Rs. " + it.price;
+    document.getElementById("errBuyName").innerHTML = "";
+    document.getElementById("errBuyPhone").innerHTML = "";
+    document.getElementById("errBuyAddress").innerHTML = "";
+    document.getElementById("buyPopup").style.display = "block";
+  }
+
+  function closeBuyPopup() {
+    document.getElementById("buyPopup").style.display = "none";
+  }
+
+  function confirmBuy() {
+    var name = document.getElementById("buyName").value;
+    var phone = document.getElementById("buyPhone").value;
+    var address = document.getElementById("buyAddress").value;
+    var payment = document.getElementById("buyPayment").value;
+    var valid = true;
+
+    document.getElementById("errBuyName").innerHTML = "";
+    document.getElementById("errBuyPhone").innerHTML = "";
+    document.getElementById("errBuyAddress").innerHTML = "";
+
+    if (name.length < 2) {
+      document.getElementById("errBuyName").innerHTML = "Please enter your name.";
+      valid = false;
+    }
+    if (phone.length != 10 || isNaN(phone)) {
+      document.getElementById("errBuyPhone").innerHTML = "Enter a 10 digit phone number.";
+      valid = false;
+    }
+    if (address.length < 8) {
+      document.getElementById("errBuyAddress").innerHTML = "Please enter your full address.";
+      valid = false;
+    }
+
+    if (valid == true) {
+      var it = getItem(currentId);
+      it.sold = true;
+      saveItems();
+      showAll();
+      closeBuyPopup();
+
+      var orderId = "QM" + Math.floor(100000 + Math.random() * 900000);
+      showMessage(
+        "Order Placed!",
+        "Thank you, " + name + "! You bought " + it.name + " for Rs. " + it.price +
+        ". Order ID: " + orderId + ". Payment: " + payment +
+        ". The seller " + it.seller + " will contact you soon."
+      );
+
+      document.getElementById("buyName").value = "";
+      document.getElementById("buyPhone").value = "";
+      document.getElementById("buyAddress").value = "";
+    }
+  }
+
+  // ---------- MESSAGE POPUP ----------
+  function showMessage(title, text) {
+    document.getElementById("msgTitle").innerHTML = title;
+    document.getElementById("msgText").textContent = text;
+    document.getElementById("msgPopup").style.display = "block";
+  }
+
+  function closeMsgPopup() {
+    document.getElementById("msgPopup").style.display = "none";
+  }
+
+  // Run when the page opens
+  loadItems();
+  showAll();
+</script>
 
 </body>
 </html>
